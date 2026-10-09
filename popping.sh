@@ -19,8 +19,8 @@
 #   ./popping.sh "Jane Doe <jane@example.com>"
 set -Eeuo pipefail
 
-CONFIG_KEY="coauthor.trailer"
-HOOK_MARKER="# managed-by: setup-coauthor-hook"
+CONFIG_KEY="popping.trailer"
+HOOK_MARKER="# managed-by: popping"
 
 ANTHROPIC_EMAIL="noreply@anthropic.com"
 OPENAI_EMAIL="noreply@openai.com"
@@ -81,14 +81,14 @@ resolve() {
 write_hook() {
   cat <<'HOOK'
 #!/usr/bin/env bash
-# managed-by: setup-coauthor-hook
-# Appends configured Co-Authored-By trailers (git config coauthor.trailer)
+# managed-by: popping
+# Appends configured Co-Authored-By trailers (git config popping.trailer)
 # unless a Co-Authored-By trailer with the same email is already present.
-set -euo pipefail
+set -Eeuo pipefail
 msg_file=$1
 
 # Run the hook this one replaced, if any.
-chained="$(dirname "$0")/commit-msg.pre-coauthor"
+chained="$(dirname "$0")/commit-msg.pre-popping"
 if [ -x "$chained" ]; then "$chained" "$@"; fi
 
 [ "${SKIP_COAUTHOR:-}" = 1 ] && exit 0
@@ -99,7 +99,7 @@ grep -qv '^[[:space:]]*\(#.*\)\{0,1\}$' "$msg_file" || exit 0
 existing=$(git interpret-trailers --parse <"$msg_file" \
   | grep -i '^co-authored-by:' | grep -io '<[^>]*>' | tr '[:upper:]' '[:lower:]' || true)
 
-git config --get-all coauthor.trailer 2>/dev/null | while IFS= read -r who; do
+git config --get-all popping.trailer 2>/dev/null | while IFS= read -r who; do
   [ -n "$who" ] || continue
   email=$(echo "$who" | grep -io '<[^>]*>' | tr '[:upper:]' '[:lower:]' || true)
   if [ -n "$email" ] && grep -qxF "$email" <<<"$existing"; then
@@ -131,7 +131,7 @@ done
 git rev-parse --git-dir >/dev/null 2>&1 || die "not inside a git repository"
 hooks_dir=$(git rev-parse --git-path hooks)
 hook="$hooks_dir/commit-msg"
-backup="$hooks_dir/commit-msg.pre-coauthor"
+backup="$hooks_dir/commit-msg.pre-popping"
 
 case $action in
   show)
