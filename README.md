@@ -31,3 +31,7 @@ Notes:
 - Setup is per Git repository
 - Windows users please use Git bash: `bash.exe ./popping.sh [...options]`
 
+## FAQ
+
+Name is from [the dance style](https://en.wikipedia.org/wiki/Popping).
+
